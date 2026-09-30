@@ -1,23 +1,16 @@
 <script>
   import { listarQuartos, criarReserva } from '$lib/api/quartos-api.js';
+  import { sessao } from '$shared/sessao.svelte.js';
 
-  // Svelte 5: Pega os parâmetros da URL via $props()
   let { data } = $props();
 
-  // Svelte 5: Variáveis reativas usam $state()
   let quarto = $state(null);
   let carregando = $state(true);
   let erro = $state(null);
-
-  // Estados do formulário
-  let nomeHospede = $state('');
-  let email = $state('');
   let enviando = $state(false);
   let sucesso = $state(false);
-  let errosCampos = $state({});
   let erroGeral = $state(null);
 
-  // Carrega os dados assim que o componente inicia
   $effect(() => {
     async function carregar() {
       try {
@@ -38,20 +31,17 @@
     if (enviando) return;
 
     enviando = true;
-    errosCampos = {};
     erroGeral = null;
 
     try {
-      await criarReserva({ quartoId: data.id, nomeHospede, email });
+      // Envia os dados utilizando o token/usuário da store
+      await criarReserva({
+        quartoId: data.id,
+        usuarioId: sessao.usuario?.id
+      });
       sucesso = true;
-      nomeHospede = '';
-      email = '';
     } catch (err) {
-      if (err.campos) {
-        errosCampos = err.campos;
-      } else {
-        erroGeral = err.message;
-      }
+      erroGeral = err.message;
     } finally {
       enviando = false;
     }
@@ -66,51 +56,19 @@
   <h2>Reserva: {quarto.nome}</h2>
   <p>Preço: R$ {quarto.preco}/noite</p>
 
-  {#if sucesso}
+  {#if !sessao.usuario}
+    <p style="color: orange;">
+      Você precisa estar logado para fazer uma reserva. <a href="/login">Clique aqui para entrar</a>.
+    </p>
+  {:else if sucesso}
     <p style="color: green;" role="status">Reserva realizada com sucesso!</p>
   {:else}
-    <form onsubmit={handleSubmit} novalidate>
+    <form onsubmit={handleSubmit}>
       {#if erroGeral}
         <p style="color: red;" role="alert">{erroGeral}</p>
       {/if}
 
-      <div>
-        <label for="nome">Nome Completo</label>
-        <input
-          id="nome"
-          name="nomeHospede"
-          type="text"
-          autoComplete="name"
-          bind:value={nomeHospede}
-          aria-invalid={!!errosCampos.nomeHospede}
-          aria-describedby={errosCampos.nomeHospede ? "nome-erro" : undefined}
-          required
-        />
-        {#if errosCampos.nomeHospede}
-          <span id="nome-erro" role="alert" style="color: red;">{errosCampos.nomeHospede}</span>
-        {/if}
-      </div>
-
-      <br />
-
-      <div>
-        <label for="email">E-mail</label>
-        <input
-          id="email"
-          name="email"
-          type="email"
-          autoComplete="email"
-          bind:value={email}
-          aria-invalid={!!errosCampos.email}
-          aria-describedby={errosCampos.email ? "email-erro" : undefined}
-          required
-        />
-        {#if errosCampos.email}
-          <span id="email-erro" role="alert" style="color: red;">{errosCampos.email}</span>
-        {/if}
-      </div>
-
-      <br />
+      <p>Confirmar reserva para o usuário: <strong>{sessao.usuario.nome}</strong> ({sessao.usuario.email})</p>
 
       <button type="submit" disabled={enviando}>
         {enviando ? 'Reservando...' : 'Confirmar Reserva'}

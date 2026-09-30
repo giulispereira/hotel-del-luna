@@ -1,14 +1,21 @@
 import express from 'express';
 import cors from 'cors';
+import bcrypt from 'bcrypt';
+import jwt from 'jsonwebtoken';
 
 const app = express();
 app.use(cors({ origin: 'http://localhost:5173' })); // Libera acesso ao SvelteKit (Vite)
 app.use(express.json());
 
+const JWT_SECRET = process.env.JWT_SECRET || 'hotel_del_luna_segredo_super_secreto_123';
+
 // Atraso artificial de 400ms para testar o estado de carregando (Skeleton/Spinner)
 app.use((req, res, next) => {
   setTimeout(next, 400);
 });
+
+// Seed de Usuários (Banco em memória)
+let usuarios = [];
 
 // Seed inicial com 8 quartos do Hotel Del Luna
 let quartos = [
@@ -23,6 +30,63 @@ let quartos = [
 ];
 
 let reservas = [];
+
+// ==========================================
+// ROTAS DE AUTENTICAÇÃO
+// ==========================================
+
+// POST /api/auth/registro - Cadastrar novo usuário
+app.post('/api/auth/registro', async (req, res) => {
+  const { nome, email, senha } = req.body;
+
+  if (!email || !senha || !nome) {
+    return res.status(400).json({ mensagem: 'Nome, e-mail e senha são obrigatórios.' });
+  }
+
+  const usuarioExiste = usuarios.find(u => u.email === email);
+  if (usuarioExiste) {
+    return res.status(409).json({ mensagem: 'Este e-mail já está cadastrado.' });
+  }
+
+  // Criptografa a senha antes de salvar
+  const senhaHash = await bcrypt.hash(senha, 10);
+
+  const novoUsuario = { id: String(usuarios.length + 1), nome, email, senhaHash };
+  usuarios.push(novoUsuario);
+
+  const { senhaHash: _, ...usuarioSemSenha } = novoUsuario;
+  res.status(201).json(usuarioSemSenha);
+});
+
+// POST /api/auth/login - Autenticar usuário e gerar token
+app.post('/api/auth/login', async (req, res) => {
+  const { email, senha } = req.body;
+
+  const usuario = usuarios.find(u => u.email === email);
+  if (!usuario) {
+    return res.status(401).json({ mensagem: 'Credenciais inválidas.' });
+  }
+
+  const senhaValida = await bcrypt.compare(senha, usuario.senhaHash);
+  if (!senhaValida) {
+    return res.status(401).json({ mensagem: 'Credenciais inválidas.' });
+  }
+
+  // Gera o token JWT com validade de 1h
+  const token = jwt.sign(
+    { id: usuario.id, email: usuario.email },
+    JWT_SECRET,
+    { expiresIn: '1h' }
+  );
+
+  const { senhaHash: _, ...usuarioSemSenha } = usuario;
+  res.json({ token, usuario: usuarioSemSenha });
+});
+
+
+// ==========================================
+// ROTAS DE QUARTOS E RESERVAS
+// ==========================================
 
 // GET /api/quartos - Listar todos
 app.get('/api/quartos', (req, res) => {
