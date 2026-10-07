@@ -1,6 +1,6 @@
 <script>
   import { listarQuartos, criarReserva } from '$lib/api/quartos-api.js';
-  import { sessao } from '$shared/sessao.svelte.js';
+  import { sessao } from '$lib/sessao.svelte.js';
 
   let { data } = $props();
 

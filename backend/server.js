@@ -102,7 +102,28 @@ app.get('/api/quartos/:id', (req, res) => {
   res.json(quarto);
 });
 
-// POST /api/reservas - Criar uma nova reserva com validação de contrato (400 e 409)
+// GET /api/reservas - Listar reservas (filtra por email se fornecido)
+app.get('/api/reservas', (req, res) => {
+  const { email } = req.query;
+
+  if (email) {
+    const reservasDoUsuario = reservas
+      .filter(r => r.email === email)
+      .map(r => ({
+        ...r,
+        quarto: quartos.find(q => q.id === r.quartoId)
+      }));
+    return res.json(reservasDoUsuario);
+  }
+
+  const todasReservas = reservas.map(r => ({
+    ...r,
+    quarto: quartos.find(q => q.id === r.quartoId)
+  }));
+  res.json(todasReservas);
+});
+
+// POST /api/reservas - Criar uma nova reserva
 app.post('/api/reservas', (req, res) => {
   const { quartoId, nomeHospede, email } = req.body;
   const erros = {};
@@ -115,12 +136,10 @@ app.post('/api/reservas', (req, res) => {
     erros.email = 'Use o formato nome@dominio.com';
   }
 
-  // Devolve erro 400 se faltar algum campo
   if (Object.keys(erros).length > 0) {
     return res.status(400).json({ erro: 'Dados inválidos', campos: erros });
   }
 
-  // Devolve erro 409 se o e-mail já tiver reserva cadastrada
   const reservaExistente = reservas.find(r => r.email === email && r.quartoId === quartoId);
   if (reservaExistente) {
     return res.status(409).json({ mensagem: 'Este e-mail já possui uma reserva para este quarto.' });
@@ -135,6 +154,13 @@ app.post('/api/reservas', (req, res) => {
   };
 
   reservas.push(novaReserva);
+
+  // Marca o quarto como indisponível
+  const quarto = quartos.find(q => q.id === quartoId);
+  if (quarto) {
+    quarto.disponivel = false;
+  }
+
   res.status(201).json(novaReserva);
 });
 
