@@ -1,6 +1,6 @@
 // frontend/src/lib/api/auth-api.js
 
-const API_URL = 'http://localhost:3001/api/auth';
+const API_URL = 'http://localhost:3002/api/auth';
 
 export async function loginApi(email, senha) {
   const res = await fetch(`${API_URL}/login`, {

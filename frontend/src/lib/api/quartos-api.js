@@ -1,4 +1,4 @@
-const API = 'http://localhost:3001/api';
+const API = 'http://localhost:3002/api';
 
 export async function listarQuartos() {
   const res = await fetch(`${API}/quartos`);
