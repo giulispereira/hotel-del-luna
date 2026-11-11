@@ -4,65 +4,86 @@ import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
 
 const app = express();
-app.use(cors({ origin: 'http://localhost:5173' })); // Libera acesso ao SvelteKit (Vite)
+app.use(cors({ origin: 'http://localhost:5173' }));
 app.use(express.json());
 
 const JWT_SECRET = process.env.JWT_SECRET || 'hotel_del_luna_segredo_super_secreto_123';
 
-// Atraso artificial de 400ms para testar o estado de carregando (Skeleton/Spinner)
 app.use((req, res, next) => {
-  setTimeout(next, 400);
+  setTimeout(next, 300);
 });
 
-// Seed de Usuários (Banco em memória)
 let usuarios = [];
 
-// Seed inicial com 8 quartos do Hotel Del Luna
 let quartos = [
-  { id: '101', nome: 'Suíte Presidencial Man-wol', preco: 850, disponivel: true },
-  { id: '102', nome: 'Luxo Vista Mar Celestial', preco: 500, disponivel: true },
-  { id: '103', nome: 'Standard Jardim da Lua', preco: 300, disponivel: true },
-  { id: '104', nome: 'Suíte Executiva Chan-sung', preco: 600, disponivel: false },
-  { id: '105', nome: 'Quarto Deluxe Estelar', preco: 450, disponivel: true },
-  { id: '106', nome: 'Suíte Real Fantasma', preco: 950, disponivel: true },
-  { id: '107', nome: 'Standard Sol Poente', preco: 250, disponivel: false },
-  { id: '108', nome: 'Cobertura Lua Cheia', preco: 1200, disponivel: true }
+  { 
+    id: '101', 
+    nome: 'Suíte Presidencial Man-wol', 
+    preco: 850, 
+    disponivel: true, 
+    imagem: 'https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?auto=format&fit=crop&w=800&q=80' 
+  },
+  { 
+    id: '102', 
+    nome: 'Luxo Vista Mar Celestial', 
+    preco: 500, 
+    disponivel: true, 
+    imagem: 'https://images.unsplash.com/photo-1590490360182-c33d57733427?auto=format&fit=crop&w=800&q=80' 
+  },
+  { 
+    id: '103', 
+    nome: 'Standard Jardim da Lua', 
+    preco: 300, 
+    disponivel: true, 
+    imagem: 'https://images.unsplash.com/photo-1566665797739-1674de7a421a?auto=format&fit=crop&w=800&q=80' 
+  },
+  { 
+    id: '104', 
+    nome: 'Suíte Executiva Chan-sung', 
+    preco: 600, 
+    disponivel: true, 
+    imagem: 'https://images.unsplash.com/photo-1618773928121-c32242e63f39?auto=format&fit=crop&w=800&q=80' 
+  }
 ];
 
 let reservas = [];
 
-// ==========================================
-// ROTAS DE AUTENTICAÇÃO
-// ==========================================
-
-// POST /api/auth/registro - Cadastrar novo usuário
+// Registro de usuários normais
 app.post('/api/auth/registro', async (req, res) => {
   const { nome, email, senha } = req.body;
-
   if (!email || !senha || !nome) {
-    return res.status(400).json({ mensagem: 'Nome, e-mail e senha são obrigatórios.' });
+    return res.status(400).json({ mensagem: 'Preencha todos os campos.' });
   }
 
   const usuarioExiste = usuarios.find(u => u.email === email);
   if (usuarioExiste) {
-    return res.status(409).json({ mensagem: 'Este e-mail já está cadastrado.' });
+    return res.status(409).json({ mensagem: 'E-mail já cadastrado.' });
   }
 
-  // Criptografa a senha antes de salvar
   const senhaHash = await bcrypt.hash(senha, 10);
-
-  const novoUsuario = { id: String(usuarios.length + 1), nome, email, senhaHash };
+  const novoUsuario = { id: String(usuarios.length + 1), nome, email, senhaHash, isAdmin: false };
   usuarios.push(novoUsuario);
 
   const { senhaHash: _, ...usuarioSemSenha } = novoUsuario;
   res.status(201).json(usuarioSemSenha);
 });
 
-// POST /api/auth/login - Autenticar usuário e gerar token
+// Login unificado (Clientes e Admin)
 app.post('/api/auth/login', async (req, res) => {
   const { email, senha } = req.body;
+  const emailLimpo = email ? email.trim().toLowerCase() : '';
 
-  const usuario = usuarios.find(u => u.email === email);
+  // Acesso do Admin flexível
+  if (
+    (emailLimpo === 'admin@deluna.com' || emailLimpo === 'admin@delluna.com' || emailLimpo === '12.345.678/0001-99') && 
+    (senha === 'admin123' || senha === 'admin@delluna.com' || senha === 'admin@deluna.com')
+  ) {
+    const adminUser = { id: 'admin', nome: 'Gerência Hotel Del Luna', email: 'admin@deluna.com', isAdmin: true };
+    const token = jwt.sign({ id: 'admin', email: 'admin@deluna.com', isAdmin: true }, JWT_SECRET, { expiresIn: '1h' });
+    return res.json({ token, usuario: adminUser });
+  }
+
+  const usuario = usuarios.find(u => u.email === emailLimpo);
   if (!usuario) {
     return res.status(401).json({ mensagem: 'Credenciais inválidas.' });
   }
@@ -72,96 +93,112 @@ app.post('/api/auth/login', async (req, res) => {
     return res.status(401).json({ mensagem: 'Credenciais inválidas.' });
   }
 
-  // Gera o token JWT com validade de 1h
-  const token = jwt.sign(
-    { id: usuario.id, email: usuario.email },
-    JWT_SECRET,
-    { expiresIn: '1h' }
-  );
-
+  const token = jwt.sign({ id: usuario.id, email: usuario.email, isAdmin: usuario.isAdmin }, JWT_SECRET, { expiresIn: '1h' });
   const { senhaHash: _, ...usuarioSemSenha } = usuario;
   res.json({ token, usuario: usuarioSemSenha });
 });
 
-
-// ==========================================
-// ROTAS DE QUARTOS E RESERVAS
-// ==========================================
-
-// GET /api/quartos - Listar todos
+// Listar todos os quartos
 app.get('/api/quartos', (req, res) => {
   res.json(quartos);
 });
 
-// GET /api/quartos/:id - Buscar um quarto por ID
+// Detalhes de um quarto
 app.get('/api/quartos/:id', (req, res) => {
   const quarto = quartos.find(q => q.id === req.params.id);
-  if (!quarto) {
-    return res.status(404).json({ mensagem: 'Quarto não encontrado' });
-  }
+  if (!quarto) return res.status(404).json({ mensagem: 'Quarto não encontrado' });
   res.json(quarto);
 });
 
-// GET /api/reservas - Listar reservas (filtra por email se fornecido)
+// Adicionar quarto (Admin)
+app.post('/api/quartos', (req, res) => {
+  const { nome, preco, imagem } = req.body;
+  if (!nome || !preco) return res.status(400).json({ mensagem: 'Nome e preço são obrigatórios' });
+
+  const novoQuarto = {
+    id: String(Date.now()),
+    nome,
+    preco: Number(preco),
+    disponivel: true,
+    imagem: imagem || 'https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?auto=format&fit=crop&w=800&q=80'
+  };
+
+  quartos.push(novoQuarto);
+  res.status(201).json(novoQuarto);
+});
+
+// Remover quarto (Admin)
+app.delete('/api/quartos/:id', (req, res) => {
+  quartos = quartos.filter(q => q.id !== req.params.id);
+  res.json({ mensagem: 'Quarto removido com sucesso' });
+});
+
+// Listar reservas (Filtrado por e-mail ou todas para Admin)
 app.get('/api/reservas', (req, res) => {
   const { email } = req.query;
-
   if (email) {
-    const reservasDoUsuario = reservas
-      .filter(r => r.email === email)
-      .map(r => ({
-        ...r,
-        quarto: quartos.find(q => q.id === r.quartoId)
-      }));
-    return res.json(reservasDoUsuario);
+    const minhas = reservas.filter(r => r.email === email).map(r => ({
+      ...r,
+      quarto: quartos.find(q => q.id === r.quartoId)
+    }));
+    return res.json(minhas);
   }
 
-  const todasReservas = reservas.map(r => ({
+  const todas = reservas.map(r => ({
     ...r,
     quarto: quartos.find(q => q.id === r.quartoId)
   }));
-  res.json(todasReservas);
+  res.json(todas);
 });
 
-// POST /api/reservas - Criar uma nova reserva
+// Criar reserva com datas
 app.post('/api/reservas', (req, res) => {
-  const { quartoId, nomeHospede, email } = req.body;
-  const erros = {};
+  const { quartoId, nomeHospede, email, dataCheckIn, dataCheckOut } = req.body;
 
-  if (!nomeHospede || nomeHospede.trim().length < 3) {
-    erros.nomeHospede = 'Informe o nome completo do hóspede (mínimo 3 caracteres)';
+  if (!dataCheckIn || !dataCheckOut) {
+    return res.status(400).json({ mensagem: 'Informe as datas de check-in e check-out.' });
   }
 
-  if (!email || !email.includes('@')) {
-    erros.email = 'Use o formato nome@dominio.com';
+  const quarto = quartos.find(q => q.id === quartoId);
+  if (!quarto) return res.status(404).json({ mensagem: 'Quarto não encontrado.' });
+
+  const entrada = new Date(dataCheckIn);
+  const saida = new Date(dataCheckOut);
+  const dias = Math.ceil((saida - entrada) / (1000 * 60 * 60 * 24));
+
+  if (dias <= 0) {
+    return res.status(400).json({ mensagem: 'A data de check-out deve ser posterior ao check-in.' });
   }
 
-  if (Object.keys(erros).length > 0) {
-    return res.status(400).json({ erro: 'Dados inválidos', campos: erros });
-  }
-
-  const reservaExistente = reservas.find(r => r.email === email && r.quartoId === quartoId);
-  if (reservaExistente) {
-    return res.status(409).json({ mensagem: 'Este e-mail já possui uma reserva para este quarto.' });
-  }
+  const valorTotal = dias * quarto.preco;
 
   const novaReserva = {
-    id: String(reservas.length + 1),
+    id: String(Date.now()),
     quartoId,
     nomeHospede,
     email,
+    dataCheckIn,
+    dataCheckOut,
+    dias,
+    valorTotal,
+    status: 'Confirmada',
     criadoEm: new Date()
   };
 
   reservas.push(novaReserva);
-
-  // Marca o quarto como indisponível
-  const quarto = quartos.find(q => q.id === quartoId);
-  if (quarto) {
-    quarto.disponivel = false;
-  }
-
+  quarto.disponivel = false;
   res.status(201).json(novaReserva);
+});
+
+// Cancelar reserva
+app.delete('/api/reservas/:id', (req, res) => {
+  const reserva = reservas.find(r => r.id === req.params.id);
+  if (reserva) {
+    const quarto = quartos.find(q => q.id === reserva.quartoId);
+    if (quarto) quarto.disponivel = true;
+    reservas = reservas.filter(r => r.id !== req.params.id);
+  }
+  res.json({ mensagem: 'Reserva cancelada com sucesso' });
 });
 
 app.listen(3001, () => {
