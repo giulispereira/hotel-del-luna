@@ -36,7 +36,7 @@
     carregando = true;
     erro = null;
     try {
-      const res = await fetch(`http://localhost:3002/api/quartos/${quartoId}`);
+      const res = await fetch(`http://localhost:3001/api/quartos/${quartoId}`);
       if (res.ok) {
         quarto = await res.json();
       } else {
@@ -85,7 +85,7 @@
     }
 
     try {
-      const res = await fetch('http://localhost:3002/api/reservas', {
+      const res = await fetch('http://localhost:3001/api/reservas', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({

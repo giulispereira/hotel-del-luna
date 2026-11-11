@@ -13,7 +13,7 @@
 
     try {
       const emailQuery = sessao.usuario.email ? `?email=${encodeURIComponent(sessao.usuario.email)}` : '';
-      const res = await fetch(`http://localhost:3002/api/reservas${emailQuery}`);
+      const res = await fetch(`http://localhost:3001/api/reservas${emailQuery}`);
       
       if (res.ok) {
         reservas = await res.json();

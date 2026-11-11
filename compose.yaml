@@ -4,7 +4,7 @@ services:
       context: ./backend
       target: dev
     ports:
-      - "3001:3002"
+      - "3002:3001"
     env_file:
       - ./backend/.env
     volumes:
