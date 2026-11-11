@@ -4,7 +4,7 @@ import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
 
 const app = express();
-app.use(cors({ origin: 'http://localhost:5173' }));
+app.use(cors({ origin: 'giulianna.frameworksweb.com.br' }));
 app.use(express.json());
 
 const JWT_SECRET = process.env.JWT_SECRET || 'hotel_del_luna_segredo_super_secreto_123';
