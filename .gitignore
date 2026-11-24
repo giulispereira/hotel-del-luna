@@ -1,0 +1,20 @@
+# Dependências
+node_modules/
+.pnp
+.pnp.js
+
+# Build e SvelteKit
+.svelte-kit/
+build/
+dist/
+
+# Variáveis de ambiente e dados locais
+.env
+.env.*
+!.env.example
+backend/data/
+
+# Sistema operacional
+.DS_Store
+Thumbs.db
+*.log

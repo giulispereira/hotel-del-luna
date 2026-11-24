@@ -4,8 +4,15 @@ import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
 
 const app = express();
-app.use(cors({ origin: 'http://localhost:5173' }));
+
+// Libera as portas de desenvolvimento (5173, 5174) e a de produção (8080)
+app.use(cors({ 
+  origin: ['http://localhost:5173', 'http://localhost:5174', 'http://localhost:8080'] 
+}));
 app.use(express.json());
+app.get('/health', (req, res) => {
+  res.status(200).json({ status: 'ok' });
+});
 
 const JWT_SECRET = process.env.JWT_SECRET || 'hotel_del_luna_segredo_super_secreto_123';
 
