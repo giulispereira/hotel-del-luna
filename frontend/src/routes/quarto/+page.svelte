@@ -299,30 +299,30 @@
         <h3>{editandoId ? 'Editar Unidade' : 'Cadastrar Nova Unidade'}</h3>
         <form onsubmit={salvarNovoQuarto} class="form-modal">
           <div class="input-group">
-            <label>Nome / Identificação</label>
-            <input type="text" bind:value={novoNome} placeholder="Ex: Apartamento Standard" required />
+            <label for="input-nome">Nome / Identificação</label>
+            <input id="input-nome" type="text" bind:value={novoNome} placeholder="Ex: Apartamento Standard" required />
           </div>
           <div class="input-group">
-            <label>Categoria</label>
-            <input type="text" bind:value={novoTipo} placeholder="Suíte Master / Standard" required />
+            <label for="input-tipo">Categoria</label>
+            <input id="input-tipo" type="text" bind:value={novoTipo} placeholder="Suíte Master / Standard" required />
           </div>
           <div class="input-group">
-            <label>Comodidades (Ex: Duas camas, Frigobar, Ar-condicionado)</label>
-            <input type="text" bind:value={novasComodidades} placeholder="Ex: 2 camas solteiro, frigobar, ar-condicionado" />
+            <label for="input-comodidades">Comodidades (Ex: Duas camas, Frigobar, Ar-condicionado)</label>
+            <input id="input-comodidades" type="text" bind:value={novasComodidades} placeholder="Ex: 2 camas solteiro, frigobar, ar-condicionado" />
           </div>
           <div class="input-row">
             <div class="input-group">
-              <label>Quantidade Total</label>
-              <input type="number" min="1" bind:value={novaQuantidade} required />
+              <label for="input-qtd">Quantidade Total</label>
+              <input id="input-qtd" type="number" min="1" bind:value={novaQuantidade} required />
             </div>
             <div class="input-group">
-              <label>Preço da Diária (R$)</label>
-              <input type="number" step="0.01" bind:value={novoPreco} placeholder="450.00" required />
+              <label for="input-preco">Preço da Diária (R$)</label>
+              <input id="input-preco" type="number" step="0.01" bind:value={novoPreco} placeholder="450.00" required />
             </div>
           </div>
           <div class="input-group">
-            <label>Enviar Imagem do Arquivo (Opcional)</label>
-            <input type="file" accept="image/*" onchange={handleImageUpload} />
+            <label for="input-img">Enviar Imagem do Arquivo (Opcional)</label>
+            <input id="input-img" type="file" accept="image/*" onchange={handleImageUpload} />
           </div>
           <div class="modal-actions-flex" style="margin-top: 0.5rem;">
             <button type="submit" class="btn-primary" style="flex: 1;">{editandoId ? 'Salvar Alterações' : 'Salvar'}</button>
@@ -334,25 +334,25 @@
         <h3>Alocar Unidade: {quartoSelecionado.nome}</h3>
         <form onsubmit={confirmarAlocacao} class="form-modal">
           <div class="input-group">
-            <label>Nome do Hóspede</label>
-            <input type="text" bind:value={nomeHospede} placeholder="Carlos Silva" required />
+            <label for="aloc-nome">Nome do Hóspede</label>
+            <input id="aloc-nome" type="text" bind:value={nomeHospede} placeholder="Carlos Silva" required />
           </div>
           <div class="input-group">
-            <label>Documento (CPF / RG)</label>
-            <input type="text" bind:value={documentoHospede} placeholder="000.000.000-00" required />
+            <label for="aloc-doc">Documento (CPF / RG)</label>
+            <input id="aloc-doc" type="text" bind:value={documentoHospede} placeholder="000.000.000-00" required />
           </div>
           <div class="input-group">
-            <label>E-mail</label>
-            <input type="email" bind:value={emailHospede} placeholder="hospede@email.com" />
+            <label for="aloc-email">E-mail</label>
+            <input id="aloc-email" type="email" bind:value={emailHospede} placeholder="hospede@email.com" />
           </div>
           <div class="input-row">
             <div class="input-group">
-              <label>Check-in</label>
-              <input type="date" bind:value={dataCheckIn} required />
+              <label for="aloc-in">Check-in</label>
+              <input id="aloc-in" type="date" bind:value={dataCheckIn} required />
             </div>
             <div class="input-group">
-              <label>Check-out</label>
-              <input type="date" bind:value={dataCheckOut} required />
+              <label for="aloc-out">Check-out</label>
+              <input id="aloc-out" type="date" bind:value={dataCheckOut} required />
             </div>
           </div>
           <div class="modal-actions-flex" style="margin-top: 0.5rem;">
