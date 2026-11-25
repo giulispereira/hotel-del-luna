@@ -5,24 +5,29 @@
 </script>
 
 <div class="app-container">
-  <header class="hotel-header">
+  <header class="saas-header">
     <div class="brand-box">
-      <span class="subtitle">HOTELEIRO EXCLUSIVO</span>
-      <h1>HOTEL DEL LUNA</h1>
+      <div class="brand-logo">
+        <div class="logo-dot"></div>
+        <h1>DEL LUNA <span class="badge-saas">PMS</span></h1>
+      </div>
+      <span class="subtitle">Cloud Hospitality Architecture</span>
     </div>
     
     <nav class="nav-menu">
-      <a href="/">Home</a>
-      <a href="/quarto">Quartos</a>
-      <a href="/reservas">Minhas Reservas</a>
+      <a href="/">Visão Geral</a>
+      <a href="/quarto">Inventário & Quartos</a>
+      <a href="/reservas">Gestão de Reservas</a>
     </nav>
 
     <div class="auth-area">
       {#if sessao.usuario}
-        <span class="user-txt">Olá, <strong>{sessao.usuario.nome}</strong></span>
-        <button class="btn-luna" onclick={logout}>Sair</button>
+        <div class="user-badge">
+          <span class="user-txt">Operador: <strong>{sessao.usuario.nome}</strong></span>
+          <button class="btn-secondary" onclick={logout}>Desconectar</button>
+        </div>
       {:else}
-        <a href="/login" class="btn-luna">Entrar</a>
+        <a href="/login" class="btn-primary">Acessar Sistema</a>
       {/if}
     </div>
   </header>
@@ -31,15 +36,16 @@
     {@render children()}
   </main>
 
-  <footer class="hotel-footer">
-    <p>&copy; 2026 Hotel Del Luna. Todos os direitos reservados à Gerência.</p>
+  <footer class="saas-footer">
+    <div class="footer-content">
+      <p>&copy; 2026 Del Luna Technologies Inc. Todos os direitos reservados.</p>
+      <span class="server-status">● NeonDB Cloud Connected</span>
+    </div>
   </footer>
 </div>
 
 <style>
-  @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Plus+Jakarta+Sans:wght@300;400;500;600&display=swap');
-
-  /* RESET E FUNDO GLOBAL */
+  /* RESET E FUNDO GLOBAL ESTILO DARK TECH / SAAS */
   :global(*), :global(*::before), :global(*::after) {
     box-sizing: border-box;
     margin: 0;
@@ -47,59 +53,91 @@
   }
 
   :global(html), :global(body) {
-    background-color: #0c0513 !important;
-    color: #d1c4e9 !important;
-    font-family: 'Plus Jakarta Sans', sans-serif;
+    background-color: #050507 !important;
+    color: #ededef !important;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
     min-height: 100vh;
     overflow-x: hidden;
+    -webkit-font-smoothing: antialiased;
   }
 
   :global(a) {
-    color: #e2c275;
+    color: #a1a1aa;
     text-decoration: none;
     transition: color 0.2s ease;
   }
 
   :global(a:hover) {
-    color: #ffd700;
+    color: #ffffff;
   }
 
-  /* ESTRUTURA GERAL */
   .app-container {
-    max-width: 1280px;
+    max-width: 1320px;
     margin: 0 auto;
-    padding: 2.5rem 2rem;
+    padding: 2rem 2.5rem;
     display: flex;
     flex-direction: column;
     min-height: 100vh;
   }
 
-  .hotel-header {
+  /* HEADER ESTILO NAVBAR DE SAAS (Stripe/Vercel) */
+  .saas-header {
     display: flex;
     justify-content: space-between;
     align-items: center;
     padding-bottom: 1.5rem;
-    margin-bottom: 3rem;
-    border-bottom: 1px solid rgba(212, 175, 55, 0.35);
+    margin-bottom: 2.5rem;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
     flex-wrap: wrap;
     gap: 1.5rem;
+    background: rgba(5, 5, 7, 0.75);
+    backdrop-filter: blur(12px);
+    position: sticky;
+    top: 0;
+    z-index: 100;
   }
 
-  .subtitle {
-    font-family: 'Cinzel', serif;
-    font-size: 0.65rem;
-    letter-spacing: 0.3em;
-    color: #9575cd;
-    display: block;
-    margin-bottom: 0.2rem;
+  .brand-logo {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+  }
+
+  .logo-dot {
+    width: 10px;
+    height: 10px;
+    background: #ffffff;
+    border-radius: 50%;
+    box-shadow: 0 0 12px rgba(255, 255, 255, 0.6);
   }
 
   .brand-box h1 {
-    font-family: 'Cinzel', serif;
-    font-size: 1.6rem;
-    color: #e2c275;
-    letter-spacing: 0.12em;
+    font-family: 'Inter', sans-serif;
+    font-size: 1.15rem;
+    color: #ffffff;
+    letter-spacing: -0.02em;
     font-weight: 700;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  .badge-saas {
+    font-size: 0.65rem;
+    background: rgba(255, 255, 255, 0.1);
+    color: #a1a1aa;
+    padding: 0.15rem 0.4rem;
+    border-radius: 4px;
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    font-weight: 500;
+  }
+
+  .subtitle {
+    font-size: 0.75rem;
+    color: #71717a;
+    letter-spacing: 0.02em;
+    display: block;
+    margin-top: 0.1rem;
   }
 
   .nav-menu {
@@ -108,14 +146,14 @@
   }
 
   .nav-menu a {
-    font-family: 'Cinzel', serif;
     font-size: 0.85rem;
-    letter-spacing: 0.08em;
-    color: #bfa8d8;
+    color: #a1a1aa;
+    font-weight: 500;
+    letter-spacing: -0.01em;
   }
 
   .nav-menu a:hover {
-    color: #e2c275;
+    color: #ffffff;
   }
 
   .auth-area {
@@ -124,138 +162,108 @@
     gap: 1rem;
   }
 
+  .user-badge {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    padding: 0.35rem 0.35rem 0.35rem 1rem;
+    border-radius: 6px;
+  }
+
   .user-txt {
-    font-size: 0.85rem;
-    color: #d1c4e9;
+    font-size: 0.8rem;
+    color: #a1a1aa;
   }
 
   .user-txt strong {
-    color: #e2c275;
+    color: #ffffff;
   }
 
-  .btn-luna {
-    background: linear-gradient(135deg, #251038, #150521);
-    color: #e2c275 !important;
-    border: 1px solid #d4af37;
-    padding: 0.5rem 1.25rem;
-    font-family: 'Cinzel', serif;
+  /* BOTÕES PADRÃO SAAS */
+  :global(.btn-primary) {
+    background: #ffffff;
+    color: #000000 !important;
+    border: 1px solid #ffffff;
+    padding: 0.55rem 1.1rem;
     font-size: 0.8rem;
-    letter-spacing: 0.08em;
+    font-weight: 600;
+    cursor: pointer;
+    border-radius: 6px;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s ease;
+    box-shadow: 0 2px 6px rgba(255, 255, 255, 0.1);
+  }
+
+  :global(.btn-primary:hover) {
+    background: #f4f4f5;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(255, 255, 255, 0.2);
+  }
+
+  .btn-secondary {
+    background: rgba(255, 255, 255, 0.05);
+    color: #ededef !important;
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    padding: 0.45rem 0.9rem;
+    font-size: 0.75rem;
+    font-weight: 500;
     cursor: pointer;
     border-radius: 4px;
-    text-decoration: none;
-    display: inline-block;
-    transition: all 0.3s ease;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.5);
+    transition: all 0.2s ease;
   }
 
-  .btn-luna:hover {
-    background: linear-gradient(135deg, #3d1b5e, #251038);
-    border-color: #ffd700;
-    box-shadow: 0 0 12px rgba(212, 175, 55, 0.4);
-    transform: translateY(-1px);
+  .btn-secondary:hover {
+    background: rgba(255, 255, 255, 0.1);
+    border-color: rgba(255, 255, 255, 0.25);
   }
 
   .page-content {
     flex: 1;
   }
 
-  .hotel-footer {
-    text-align: center;
+  .saas-footer {
     padding-top: 2rem;
-    margin-top: 4rem;
-    border-top: 1px solid rgba(212, 175, 55, 0.15);
+    margin-top: 5rem;
+    border-top: 1px solid rgba(255, 255, 255, 0.06);
     font-size: 0.75rem;
-    color: #7e57c2;
-    font-family: 'Cinzel', serif;
-    letter-spacing: 0.08em;
+    color: #71717a;
   }
 
-  /* --- ESTILOS GLOBAIS DE CARDS E TÍTULOS (para pegar em todas as páginas) --- */
+  .footer-content {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .server-status {
+    color: #10b981;
+    font-weight: 500;
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+  }
+
+  /* REUTILÁVEIS DE TÍTULOS E CARDS */
   :global(h1), :global(h2), :global(h3) {
-    font-family: 'Cinzel', serif;
-    color: #e2c275;
-    letter-spacing: 0.08em;
+    font-family: 'Inter', sans-serif;
+    color: #ffffff;
+    letter-spacing: -0.03em;
   }
 
-  :global(.grid-quartos) {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-    gap: 1.5rem;
-    margin-top: 2rem;
+  :global(.card-base) {
+    background: rgba(255, 255, 255, 0.02);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 10px;
+    transition: all 0.25s ease;
   }
 
-  :global(.card-quarto) {
-    background: linear-gradient(145deg, #160b22, #10061a);
-    border: 1px solid rgba(212, 175, 55, 0.25);
-    border-radius: 6px;
-    overflow: hidden;
-    transition: all 0.3s ease;
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
-    display: flex;
-    flex-direction: column;
-  }
-
-  :global(.card-quarto:hover) {
-    border-color: #d4af37;
-    transform: translateY(-3px);
-    box-shadow: 0 6px 20px rgba(212, 175, 55, 0.2);
-  }
-
-  :global(.card-conteudo) {
-    padding: 1.5rem;
-    display: flex;
-    flex-direction: column;
-    gap: 1rem;
-    flex: 1;
-  }
-
-  :global(.preco) {
-    font-size: 1.2rem;
-    font-weight: 700;
-    color: #fff;
-    font-family: 'Cinzel', serif;
-  }
-
-  :global(.preco span) {
-    font-size: 0.8rem;
-    color: #9575cd;
-    font-weight: normal;
-  }
-
-  :global(.badge-indisponivel) {
-    background-color: rgba(220, 53, 69, 0.2);
-    color: #ff6b6b;
-    border: 1px solid rgba(220, 53, 69, 0.4);
-    font-size: 0.65rem;
-    padding: 0.2rem 0.5rem;
-    border-radius: 3px;
-    font-family: 'Cinzel', serif;
-    margin-left: 0.5rem;
-  }
-
-  :global(button) {
-    background: linear-gradient(135deg, #251038, #150521);
-    color: #e2c275;
-    border: 1px solid #d4af37;
-    padding: 0.6rem;
-    font-family: 'Cinzel', serif;
-    font-size: 0.8rem;
-    letter-spacing: 0.08em;
-    cursor: pointer;
-    border-radius: 4px;
-    transition: all 0.2s ease;
-  }
-
-  :global(button:hover:not(:disabled)) {
-    background: #3d1b5e;
-    box-shadow: 0 0 10px rgba(212, 175, 55, 0.4);
-  }
-
-  :global(button:disabled) {
-    background: #110818;
-    color: #6e5585;
-    border: 1px solid #2a193b;
-    cursor: not-allowed;
+  :global(.card-base:hover) {
+    border-color: rgba(255, 255, 255, 0.2);
+    background: rgba(255, 255, 255, 0.035);
   }
 </style>

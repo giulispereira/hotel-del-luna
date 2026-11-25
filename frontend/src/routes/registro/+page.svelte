@@ -1,283 +1,248 @@
 <script>
-  import { registroApi } from '$lib/api/auth-api.js';
   import { goto } from '$app/navigation';
 
-  let nome = $state('');
+  let razaoSocial = $state('');
+  let cnpj = $state('');
+  let responsavel = $state('');
   let email = $state('');
   let senha = $state('');
   let carregando = $state(false);
   let erro = $state(null);
-  let sucesso = $state(false);
 
-  async function handleSubmit(e) {
+  async function handleRegistro(e) {
     e.preventDefault();
     carregando = true;
     erro = null;
 
     try {
-      await registroApi(nome, email, senha);
-      sucesso = true;
-      setTimeout(() => {
+      const res = await fetch('http://localhost:3001/api/auth/registro', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ razaoSocial, cnpj, responsavel, email, senha })
+      });
+
+      const data = await res.json();
+
+      if (res.ok) {
+        alert('Empresa cadastrada com sucesso! Faça login para acessar o PMS.');
         goto('/login');
-      }, 1500);
+      } else {
+        erro = data.mensagem || 'Erro ao registrar empresa.';
+      }
     } catch (err) {
-      erro = err.message;
+      erro = 'Erro de conexão com o servidor API.';
     } finally {
       carregando = false;
     }
   }
 </script>
 
-<div class="registro-page-bg">
-  <div class="glass-overlay"></div>
-  
-  <div class="registro-card-glass">
+<div class="registro-page-container">
+  <div class="registro-card">
     <div class="registro-header">
-      <span class="registro-subtitle">Seja Bem-Vindo</span>
-      <h2>Criar Conta</h2>
+      <span class="registro-subtitle">Del Luna Core System</span>
+      <h2>Cadastro de Estabelecimento</h2>
+      <p class="subtitle-desc">Insira as credenciais fiscais e corporativas para registrar sua unidade hoteleira.</p>
     </div>
 
-    {#if sucesso}
-      <div class="success-box">
-        Conta criada com sucesso! Redirecionando para o login...
+    <form onsubmit={handleRegistro} class="registro-form">
+      {#if erro}
+        <div class="error-box">{erro}</div>
+      {/if}
+
+      <div class="input-group">
+        <label for="razaoSocial">Razão Social / Nome do Hotel</label>
+        <input 
+          id="razaoSocial" 
+          type="text" 
+          bind:value={razaoSocial} 
+          placeholder="Ex: Del Luna Hotel Ltda" 
+          required 
+        />
       </div>
-    {:else}
-      <form onsubmit={handleSubmit} class="registro-form">
-        {#if erro}
-          <div class="error-box">{erro}</div>
-        {/if}
 
+      <div class="input-row">
         <div class="input-group">
-          <label for="nome">Nome Completo</label>
+          <label for="cnpj">CNPJ</label>
           <input 
-            id="nome" 
+            id="cnpj" 
             type="text" 
-            bind:value={nome} 
-            placeholder="Seu Nome" 
+            bind:value={cnpj} 
+            placeholder="00.000.000/0001-00" 
             required 
           />
         </div>
-
         <div class="input-group">
-          <label for="email">E-mail</label>
+          <label for="responsavel">Responsável Legal</label>
           <input 
-            id="email" 
-            type="email" 
-            bind:value={email} 
-            placeholder="seu@email.com" 
+            id="responsavel" 
+            type="text" 
+            bind:value={responsavel} 
+            placeholder="Nome do Gerente" 
             required 
           />
         </div>
+      </div>
 
-        <div class="input-group">
-          <label for="senha">Senha</label>
-          <input 
-            id="senha" 
-            type="password" 
-            bind:value={senha} 
-            placeholder="••••••••" 
-            required 
-          />
-        </div>
+      <div class="input-group">
+        <label for="email">E-mail Corporativo</label>
+        <input 
+          id="email" 
+          type="email" 
+          bind:value={email} 
+          placeholder="gerencia@hoteldeluna.com" 
+          required 
+        />
+      </div>
 
-        <button type="submit" class="btn-submit" disabled={carregando}>
-          {carregando ? 'Cadastrando...' : 'Cadastrar'}
-        </button>
-      </form>
-    {/if}
+      <div class="input-group">
+        <label for="senha">Senha de Acesso</label>
+        <input 
+          id="senha" 
+          type="password" 
+          bind:value={senha} 
+          placeholder="••••••••" 
+          required 
+        />
+      </div>
+
+      <button type="submit" class="btn-primary" disabled={carregando} style="width: 100%; margin-top: 0.5rem;">
+        {carregando ? 'Validando CNPJ e Registrando...' : 'Cadastrar Estabelecimento'}
+      </button>
+    </form>
 
     <div class="registro-footer-text">
-      <p>Já possui uma conta? <a href="/login">Faça login</a></p>
+      <p>Já possui uma conta corporativa? <a href="/login">Faça login aqui</a></p>
     </div>
   </div>
 </div>
 
 <style>
-  .registro-page-bg {
-    position: relative;
+  .registro-page-container {
     width: 100%;
-    min-height: calc(100vh - 220px);
-    background-image: url('https://images.unsplash.com/photo-1542314831-068cd1dbfeeb?auto=format&fit=crop&w=1920&q=85');
-    background-size: cover;
-    background-position: center;
-    border-radius: 12px;
-    overflow: hidden;
+    min-height: calc(100vh - 200px);
     display: flex;
     align-items: center;
     justify-content: center;
-    padding: 3rem 1.5rem;
-    box-shadow: 0 15px 40px rgba(0, 0, 0, 0.8);
-    border: 1px solid rgba(212, 175, 55, 0.3);
+    padding: 2rem 1rem;
   }
 
-  .glass-overlay {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: linear-gradient(135deg, rgba(12, 5, 19, 0.85) 0%, rgba(24, 10, 36, 0.75) 100%);
-    z-index: 1;
-  }
-
-  .registro-card-glass {
-    position: relative;
-    z-index: 2;
-    width: 100%;
-    max-width: 440px;
-    background: rgba(22, 11, 34, 0.55);
-    backdrop-filter: blur(16px);
-    -webkit-backdrop-filter: blur(16px);
-    border: 1px solid rgba(212, 175, 55, 0.35);
+  .registro-card {
+    background: rgba(255, 255, 255, 0.015);
+    border: 1px solid rgba(255, 255, 255, 0.08);
     border-radius: 12px;
-    padding: 2.8rem 2.5rem;
-    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.7),
-                0 0 25px rgba(212, 175, 55, 0.1);
+    padding: 2.5rem;
+    width: 100%;
+    max-width: 480px;
     display: flex;
     flex-direction: column;
     gap: 1.5rem;
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.8);
   }
 
   .registro-header {
-    text-align: center;
+    text-align: left;
+    display: flex;
+    flex-direction: column;
+    gap: 0.3rem;
   }
 
   .registro-subtitle {
-    font-family: 'Cinzel', serif;
     font-size: 0.7rem;
-    letter-spacing: 0.35em;
-    color: #bfa8d8;
+    letter-spacing: 0.05em;
+    color: #71717a;
     text-transform: uppercase;
-    display: block;
-    margin-bottom: 0.4rem;
+    font-weight: 600;
   }
 
   .registro-header h2 {
-    font-family: 'Cinzel', serif;
-    color: #e2c275;
-    font-size: 1.6rem;
-    letter-spacing: 0.08em;
+    font-size: 1.35rem;
+    color: #ffffff;
     font-weight: 700;
-    text-shadow: 0 2px 10px rgba(0, 0, 0, 0.5);
+    letter-spacing: -0.02em;
+  }
+
+  .subtitle-desc {
+    color: #a1a1aa;
+    font-size: 0.85rem;
+    line-height: 1.4;
   }
 
   .registro-form {
     display: flex;
     flex-direction: column;
-    gap: 1.25rem;
+    gap: 1rem;
+  }
+
+  .input-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.75rem;
   }
 
   .input-group {
     display: flex;
     flex-direction: column;
-    gap: 0.4rem;
+    gap: 0.35rem;
   }
 
   .input-group label {
-    font-family: 'Cinzel', serif;
-    font-size: 0.78rem;
-    color: #d1c4e9;
-    letter-spacing: 0.05em;
+    font-size: 0.75rem;
+    color: #a1a1aa;
+    font-weight: 500;
   }
 
   .input-group input {
-    background-color: rgba(12, 5, 19, 0.65);
-    border: 1px solid rgba(212, 175, 55, 0.3);
-    color: #fff;
-    padding: 0.8rem 1rem;
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid rgba(255, 255, 255, 0.1);
     border-radius: 6px;
-    font-family: 'Plus Jakarta Sans', sans-serif;
-    font-size: 0.9rem;
+    padding: 0.65rem 0.85rem;
+    color: #ffffff;
+    font-size: 0.85rem;
     outline: none;
-    transition: all 0.25s ease;
-  }
-
-  .input-group input::placeholder {
-    color: rgba(209, 196, 233, 0.4);
+    transition: border-color 0.2s ease;
   }
 
   .input-group input:focus {
-    border-color: #ffd700;
-    box-shadow: 0 0 12px rgba(212, 175, 55, 0.35);
-    background-color: rgba(18, 7, 26, 0.85);
+    border-color: rgba(255, 255, 255, 0.3);
   }
 
   .error-box {
-    background-color: rgba(220, 53, 69, 0.2);
-    color: #ff6b6b;
-    border: 1px solid rgba(220, 53, 69, 0.45);
+    background: rgba(239, 68, 68, 0.1);
+    color: #f87171;
+    border: 1px solid rgba(239, 68, 68, 0.25);
     padding: 0.75rem;
     border-radius: 6px;
     font-size: 0.85rem;
     text-align: center;
-    font-family: 'Plus Jakarta Sans', sans-serif;
-  }
-
-  .success-box {
-    background-color: rgba(40, 167, 69, 0.2);
-    color: #75b798;
-    border: 1px solid rgba(40, 167, 69, 0.45);
-    padding: 1rem;
-    border-radius: 6px;
-    font-size: 0.9rem;
-    text-align: center;
-    font-family: 'Plus Jakarta Sans', sans-serif;
-  }
-
-  .btn-submit {
-    margin-top: 0.5rem;
-    width: 100%;
-    background: linear-gradient(135deg, #2a1240, #180824);
-    color: #e2c275;
-    border: 1px solid #d4af37;
-    padding: 0.85rem;
-    font-family: 'Cinzel', serif;
-    font-size: 0.85rem;
-    letter-spacing: 0.1em;
-    cursor: pointer;
-    border-radius: 6px;
-    transition: all 0.3s ease;
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
-  }
-
-  .btn-submit:hover:not(:disabled) {
-    background: linear-gradient(135deg, #3d1b5e, #2a1240);
-    border-color: #ffd700;
-    box-shadow: 0 0 18px rgba(212, 175, 55, 0.45);
-    transform: translateY(-2px);
-  }
-
-  .btn-submit:disabled {
-    background: rgba(17, 8, 24, 0.6);
-    color: #6e5585;
-    border: 1px solid #2a193b;
-    cursor: not-allowed;
-    box-shadow: none;
   }
 
   .registro-footer-text {
     text-align: center;
     font-size: 0.85rem;
-    color: #bfa8d8;
-    border-top: 1px solid rgba(212, 175, 55, 0.2);
+    color: #71717a;
+    border-top: 1px solid rgba(255, 255, 255, 0.08);
     padding-top: 1.2rem;
   }
 
   .registro-footer-text a {
-    color: #e2c275;
+    color: #ffffff;
     text-decoration: none;
     font-weight: 600;
-    transition: color 0.2s ease;
+    transition: opacity 0.2s ease;
   }
 
   .registro-footer-text a:hover {
-    color: #ffd700;
-    text-shadow: 0 0 8px rgba(226, 194, 117, 0.5);
+    opacity: 0.8;
+    text-decoration: underline;
   }
 
   @media (max-width: 480px) {
-    .registro-card-glass {
-      padding: 2rem 1.5rem;
+    .registro-card {
+      padding: 1.5rem;
+    }
+    .input-row {
+      grid-template-columns: 1fr;
     }
   }
 </style>

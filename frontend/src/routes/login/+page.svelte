@@ -25,13 +25,12 @@
   }
 </script>
 
-<div class="login-page-bg">
-  <div class="glass-overlay"></div>
-  
-  <div class="login-card-glass">
+<div class="login-page-container">
+  <div class="login-card">
     <div class="login-header">
-      <span class="login-subtitle">Área Restrita</span>
-      <h2>Entrar no Sistema</h2>
+      <span class="login-subtitle">Del Luna Core System</span>
+      <h2>Acesso ao Painel</h2>
+      <p class="subtitle-desc">Entre com suas credenciais corporativas para gerenciar o inventário e as reservas.</p>
     </div>
 
     <form onsubmit={handleSubmit} class="login-form">
@@ -40,7 +39,7 @@
       {/if}
 
       <div class="input-group">
-        <label for="email">E-mail</label>
+        <label for="email">E-mail Corporativo</label>
         <input 
           id="email" 
           type="email" 
@@ -61,192 +60,134 @@
         />
       </div>
 
-      <button type="submit" class="btn-submit" disabled={carregando}>
-        {carregando ? 'Autenticando...' : 'Entrar'}
+      <button type="submit" class="btn-primary" disabled={carregando} style="width: 100%; margin-top: 0.5rem;">
+        {carregando ? 'Autenticando...' : 'Entrar no Sistema'}
       </button>
     </form>
 
     <div class="login-footer-text">
-      <p>Ainda não tem conta? <a href="/registro">Cadastre-se aqui</a></p>
+      <p>Ainda não tem conta corporativa? <a href="/registro">Cadastre-se aqui</a></p>
     </div>
   </div>
 </div>
 
 <style>
-  .login-page-bg {
-    position: relative;
+  .login-page-container {
     width: 100%;
-    min-height: calc(100vh - 220px);
-    background-image: url('https://images.unsplash.com/photo-1542314831-068cd1dbfeeb?auto=format&fit=crop&w=1920&q=85');
-    background-size: cover;
-    background-position: center;
-    border-radius: 12px;
-    overflow: hidden;
+    min-height: calc(100vh - 200px);
     display: flex;
     align-items: center;
     justify-content: center;
-    padding: 3rem 1.5rem;
-    box-shadow: 0 15px 40px rgba(0, 0, 0, 0.8);
-    border: 1px solid rgba(212, 175, 55, 0.3);
+    padding: 2rem 1rem;
   }
 
-  .glass-overlay {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: linear-gradient(135deg, rgba(12, 5, 19, 0.85) 0%, rgba(24, 10, 36, 0.75) 100%);
-    z-index: 1;
-  }
-
-  .login-card-glass {
-    position: relative;
-    z-index: 2;
+  .login-card {
+    background: rgba(255, 255, 255, 0.015);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 12px;
+    padding: 2.5rem;
     width: 100%;
     max-width: 440px;
-    background: rgba(22, 11, 34, 0.55);
-    backdrop-filter: blur(16px);
-    -webkit-backdrop-filter: blur(16px);
-    border: 1px solid rgba(212, 175, 55, 0.35);
-    border-radius: 12px;
-    padding: 2.8rem 2.5rem;
-    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.7),
-                0 0 25px rgba(212, 175, 55, 0.1);
     display: flex;
     flex-direction: column;
     gap: 1.5rem;
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.8);
   }
 
   .login-header {
-    text-align: center;
+    text-align: left;
+    display: flex;
+    flex-direction: column;
+    gap: 0.3rem;
   }
 
   .login-subtitle {
-    font-family: 'Cinzel', serif;
     font-size: 0.7rem;
-    letter-spacing: 0.35em;
-    color: #bfa8d8;
+    letter-spacing: 0.05em;
+    color: #71717a;
     text-transform: uppercase;
-    display: block;
-    margin-bottom: 0.4rem;
+    font-weight: 600;
   }
 
   .login-header h2 {
-    font-family: 'Cinzel', serif;
-    color: #e2c275;
-    font-size: 1.6rem;
-    letter-spacing: 0.08em;
+    font-size: 1.35rem;
+    color: #ffffff;
     font-weight: 700;
-    text-shadow: 0 2px 10px rgba(0, 0, 0, 0.5);
+    letter-spacing: -0.02em;
+  }
+
+  .subtitle-desc {
+    color: #a1a1aa;
+    font-size: 0.85rem;
+    line-height: 1.4;
   }
 
   .login-form {
     display: flex;
     flex-direction: column;
-    gap: 1.25rem;
+    gap: 1rem;
   }
 
   .input-group {
     display: flex;
     flex-direction: column;
-    gap: 0.4rem;
+    gap: 0.35rem;
   }
 
   .input-group label {
-    font-family: 'Cinzel', serif;
-    font-size: 0.78rem;
-    color: #d1c4e9;
-    letter-spacing: 0.05em;
+    font-size: 0.75rem;
+    color: #a1a1aa;
+    font-weight: 500;
   }
 
   .input-group input {
-    background-color: rgba(12, 5, 19, 0.65);
-    border: 1px solid rgba(212, 175, 55, 0.3);
-    color: #fff;
-    padding: 0.8rem 1rem;
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid rgba(255, 255, 255, 0.1);
     border-radius: 6px;
-    font-family: 'Plus Jakarta Sans', sans-serif;
-    font-size: 0.9rem;
+    padding: 0.65rem 0.85rem;
+    color: #ffffff;
+    font-size: 0.85rem;
     outline: none;
-    transition: all 0.25s ease;
-  }
-
-  .input-group input::placeholder {
-    color: rgba(209, 196, 233, 0.4);
+    transition: border-color 0.2s ease;
   }
 
   .input-group input:focus {
-    border-color: #ffd700;
-    box-shadow: 0 0 12px rgba(212, 175, 55, 0.35);
-    background-color: rgba(18, 7, 26, 0.85);
+    border-color: rgba(255, 255, 255, 0.3);
   }
 
   .error-box {
-    background-color: rgba(220, 53, 69, 0.2);
-    color: #ff6b6b;
-    border: 1px solid rgba(220, 53, 69, 0.45);
+    background: rgba(239, 68, 68, 0.1);
+    color: #f87171;
+    border: 1px solid rgba(239, 68, 68, 0.25);
     padding: 0.75rem;
     border-radius: 6px;
     font-size: 0.85rem;
     text-align: center;
-    font-family: 'Plus Jakarta Sans', sans-serif;
-  }
-
-  .btn-submit {
-    margin-top: 0.5rem;
-    width: 100%;
-    background: linear-gradient(135deg, #2a1240, #180824);
-    color: #e2c275;
-    border: 1px solid #d4af37;
-    padding: 0.85rem;
-    font-family: 'Cinzel', serif;
-    font-size: 0.85rem;
-    letter-spacing: 0.1em;
-    cursor: pointer;
-    border-radius: 6px;
-    transition: all 0.3s ease;
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
-  }
-
-  .btn-submit:hover:not(:disabled) {
-    background: linear-gradient(135deg, #3d1b5e, #2a1240);
-    border-color: #ffd700;
-    box-shadow: 0 0 18px rgba(212, 175, 55, 0.45);
-    transform: translateY(-2px);
-  }
-
-  .btn-submit:disabled {
-    background: rgba(17, 8, 24, 0.6);
-    color: #6e5585;
-    border: 1px solid #2a193b;
-    cursor: not-allowed;
-    box-shadow: none;
   }
 
   .login-footer-text {
     text-align: center;
     font-size: 0.85rem;
-    color: #bfa8d8;
-    border-top: 1px solid rgba(212, 175, 55, 0.2);
+    color: #71717a;
+    border-top: 1px solid rgba(255, 255, 255, 0.08);
     padding-top: 1.2rem;
   }
 
   .login-footer-text a {
-    color: #e2c275;
+    color: #ffffff;
     text-decoration: none;
     font-weight: 600;
-    transition: color 0.2s ease;
+    transition: opacity 0.2s ease;
   }
 
   .login-footer-text a:hover {
-    color: #ffd700;
-    text-shadow: 0 0 8px rgba(226, 194, 117, 0.5);
+    opacity: 0.8;
+    text-decoration: underline;
   }
 
   @media (max-width: 480px) {
-    .login-card-glass {
-      padding: 2rem 1.5rem;
+    .login-card {
+      padding: 1.5rem;
     }
   }
 </style>
